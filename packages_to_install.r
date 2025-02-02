@@ -10,7 +10,9 @@ packages_to_install = c(
     "htmltools",
     "leaflet",
     "sf",
-    "tigris"
+    "tigris",
+    "readr",
+    "here"
 )
 
 #to install all of these
