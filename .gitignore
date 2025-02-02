@@ -1,0 +1,12 @@
+*.Rproj.user
+*.Rhistory
+*.RData
+*.Ruserdata
+*.csv
+*.html
+*.DS_Store
+/data/*
+
+
+! data/README.txt
+! session1/session_1slides.html
