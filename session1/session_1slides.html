@@ -1317,7 +1317,7 @@ Robert Ashmead
 </section>
 <section id="the-select-function" class="slide level2">
 <h2>The <code>select()</code> function</h2>
-<p><code>select()</code> subsets a columns in a dataset based on variable names</p>
+<p><code>select()</code> subsets the columns in a dataset based on variable names</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>iris <span class="sc">%&gt;%</span> </span>
 <span id="cb5-2"><a href="#cb5-2"></a>    <span class="fu">select</span>(Sepal.Length, Petal.Width, Species) <span class="sc">%&gt;%</span></span>
@@ -1746,7 +1746,7 @@ A couple of observations:
 <span id="cb40-12"><a href="#cb40-12"></a><span class="co"># arrest_data = do.call(bind_rows, lapply(all_data_files, FUN = function(file){</span></span>
 <span id="cb40-13"><a href="#cb40-13"></a><span class="co">#     data = readr::read_csv(here(&quot;data&quot;,&quot;FloridaConvictions&quot;,file))</span></span>
 <span id="cb40-14"><a href="#cb40-14"></a><span class="co">#     #for some reason it looks like these are characters in some cases and numeric in others</span></span>
-<span id="cb40-15"><a href="#cb40-15"></a><span class="co">#     data$PROS_AON = as.character(data$PROS_AON) #</span></span>
+<span id="cb40-15"><a href="#cb40-15"></a><span class="co">#     data$PROS_AON = as.character(data$PROS_AON)</span></span>
 <span id="cb40-16"><a href="#cb40-16"></a><span class="co">#     data$DISP_AON = as.character(data$DISP_AON)</span></span>
 <span id="cb40-17"><a href="#cb40-17"></a><span class="co">#     return(data)</span></span>
 <span id="cb40-18"><a href="#cb40-18"></a><span class="co"># }))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1943,9 +1943,6 @@ A couple of observations:
 <li><p>This is a nice visual resource of the different shiny inputs: <a href="https://shiny.posit.co/r/gallery/widgets/widget-gallery/">Shiny Widgets Gallery</a></p></li>
 <li><p>Additional options are available in other packages. One such option is the <a href="https://github.com/dreamRs/shinyWidgets">shinyWidgets package</a></p></li>
 </ul>
-</section>
-<section id="questions" class="slide level2">
-<h2>Questions?</h2>
 </section>
 <section id="step-3-in-the-server-combine-user-inputs-with-data-to-produce-outputs" class="slide level2">
 <h2>Step 3: In the server, combine user inputs with data to produce outputs</h2>
