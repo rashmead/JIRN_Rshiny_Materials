@@ -12,7 +12,8 @@ packages_to_install = c(
     "sf",
     "tigris",
     "readr",
-    "here"
+    "here",
+    "shinydashboard"
 )
 
 #to install all of these
