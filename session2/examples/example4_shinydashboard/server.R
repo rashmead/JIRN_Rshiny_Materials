@@ -11,13 +11,13 @@ function(input, output){
         if(input$selected_grouping != "no_grouping"){
         
             out = arrest_data %>% 
-                filter(ARREST_DATE >= input$daterange[1] & ARREST_DATE <= input$daterange[1]) %>%
+                filter(ARREST_DATE >= input$daterange[1] & ARREST_DATE <= input$daterange[2]) %>%
                 group_by( .data[[input$selected_outcome]], .data[[input$selected_grouping]] ) %>%
                 summarize(count = n()) 
         }else{
             
             out = arrest_data %>% 
-                filter(ARREST_DATE >= input$daterange[1] & ARREST_DATE <= input$daterange[1]) %>%
+                filter(ARREST_DATE >= input$daterange[1] & ARREST_DATE <= input$daterange[2]) %>%
                 group_by( .data[[input$selected_outcome]] ) %>%
                 summarize(count = n()) %>%
                 arrange(desc(count))

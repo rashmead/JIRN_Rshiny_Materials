@@ -1,5 +1,4 @@
 navbarPage(title = "Florida Arrests",
-           theme = shinythemes::shinytheme("cosmo"),
   tabPanel("Welcome",
     "Welcome to the Florida Arrests Analysis Dashboard",
     "Here is some additional information about the data..."
