@@ -1,0 +1,1 @@
+In this case I moved a copy of the data inside the directory of the app so it would automatically be detected.

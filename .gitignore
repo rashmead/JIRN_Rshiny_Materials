@@ -6,6 +6,7 @@
 *.html
 *.DS_Store
 /data/*
+*.dcf
 
 
 ! data/README.txt
