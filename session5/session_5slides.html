@@ -1360,19 +1360,17 @@ Robert Ashmead
 <section id="common-use-cases" class="slide level2">
 <h2>Common Use Cases</h2>
 <ol type="1">
-<li>Only allow a certain group of users to see/utilize the dashboard</li>
-</ol>
+<li>Only allow a certain group of users to see/utilize the dashboard
 <ul>
 <li>Sensitive or restricted data</li>
 <li>“Dev” version of the dashboard before larger public release</li>
 <li>“Internal” company resource</li>
-</ul>
-<ol start="2" type="1">
-<li>Allow different users acess to different data or features within the dashboard</li>
-</ol>
+</ul></li>
+<li>Allow different users access to different data or features within the dashboard
 <ul>
 <li>Different levels of user access</li>
-</ul>
+</ul></li>
+</ol>
 </section>
 <section id="options-available-through-hosting-solutions" class="slide level2 scrollable">
 <h2>Options available through hosting solutions</h2>
@@ -1638,7 +1636,7 @@ Robert Ashmead
 <li>Add the credentials and login information</li>
 <li><code>observeEvent</code> is a way to perform an action in response to an event in Shiny</li>
 <li>If the credential information changes and the user is authorized, the login tab is removed and we create our other UI tabs</li>
-<li>Move the previous server code within the <code>if(credentials()$user_auth)</code> statement to help gurantee server objects are not build before login</li>
+<li>Move the previous server code within the <code>if(credentials()$user_auth)</code> statement to help gurantee server objects are not built before login</li>
 </ul>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
@@ -1730,7 +1728,7 @@ Robert Ashmead
 <li>Allows for testing cases outside of the app</li>
 <li>Easier to confirm it works as intended</li>
 </ul></li>
-<li>If you are not showing output based on rules make sure that happens in the Server
+<li>If you are supressing output based on givenrules, make sure that happens in the <strong>server</strong>
 <ul>
 <li>It is possible to show/hide UI elements based on logic (we haven’t discussed it), but this is a bad approach becuase a knowledgeable user can unhide UI elements in the HTML webpage in some cases.</li>
 </ul></li>
@@ -1739,7 +1737,7 @@ Robert Ashmead
 <section id="suppression-logic-as-a-function" class="slide level2 scrollable">
 <h2>Suppression logic as a function</h2>
 <ul>
-<li>Let’s add a rule to our analysis that suppresses any counts &lt; 10.</li>
+<li>Let’s add a rule to our analysis that suppresses any counts less than 10.</li>
 <li>First let’s turn our <code>tab_data</code> calculation into a function
 <ul>
 <li>identify the function parameters (inputs)</li>
@@ -1787,7 +1785,7 @@ Robert Ashmead
 <section id="suppression-logic-as-a-function-1" class="slide level2 scrollable">
 <h2>Suppression logic as a function</h2>
 <ul>
-<li>New function!</li>
+<li>New function (no supression rule yet)!</li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>createTabData <span class="ot">=</span> <span class="cf">function</span>(arrest_data, selected_grouping, selected_outcome, daterange,</span>
@@ -1934,7 +1932,10 @@ Robert Ashmead
 <ul>
 <li>Suppress the table and plot based on the total number cases in a date range being too small (&lt;1000 cases)</li>
 <li>Take the sum of cases in <code>tab_data</code> and check before outputing the table and plot</li>
-<li>See the last few lines below. Do the same thing for the output_table</li>
+<li>Outputing <code>NULL</code> functionally means we hide the output</li>
+<li>Add conditional logic for when to ouptut the plot versus <code>NULL</code>. See the last few lines below.<br>
+</li>
+<li>Do the same thing for the output_table</li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>output<span class="sc">$</span>output_plot <span class="ot">=</span> <span class="fu">renderPlotly</span>({</span>
@@ -2019,22 +2020,22 @@ Robert Ashmead
 <section id="pre-process-a-dashboard-dataset" class="slide level2">
 <h2>Pre-process a “dashboard dataset”</h2>
 <ol type="1">
-<li>Create the dashboard dataset(s) outside of the actual Shiny dashboard code</li>
-</ol>
+<li>Create the dashboard dataset(s) outside of the actual Shiny dashboard code
 <ul>
 <li>Rather than loading and then further processing data in the global.R file</li>
 <li>Similar to how we made <code>user_base.rds</code> for authentication</li>
-</ul>
+</ul></li>
+</ol>
 </section>
 <section id="make-the-dashboard-dataset-as-restricted-as-possible" class="slide level2">
 <h2>Make the “dashboard dataset” as restricted as possible</h2>
 <ol start="2" type="1">
-<li>Restrict the dashboard dataset(s) to only variables you actually need for the dashboard</li>
-</ol>
+<li>Restrict the dashboard dataset(s) to only variables you actually need for the dashboard
 <ul>
 <li>Remove extraneous variables</li>
 <li>Remove identifiers if you don’t need to show them</li>
-</ul>
+</ul></li>
+</ol>
 </section>
 <section id="use-substitute-ids-if-they-are-needed-for-analysis" class="slide level2">
 <h2>Use substitute IDs if they are needed for analysis</h2>

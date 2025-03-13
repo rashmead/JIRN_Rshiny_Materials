@@ -7,6 +7,7 @@
 *.DS_Store
 /data/*
 *.dcf
+*.rds
 
 
 ! data/README.txt

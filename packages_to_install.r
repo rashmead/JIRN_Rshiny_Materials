@@ -13,7 +13,8 @@ packages_to_install = c(
     "tigris",
     "readr",
     "here",
-    "shinydashboard"
+    "shinydashboard",
+    "shinyauthr"
 )
 
 #to install all of these
