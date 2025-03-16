@@ -14,7 +14,8 @@ packages_to_install = c(
     "readr",
     "here",
     "shinydashboard",
-    "shinyauthr"
+    "revealjs",
+    "flexdashboard"
 )
 
 #to install all of these

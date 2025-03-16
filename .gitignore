@@ -8,7 +8,9 @@
 /data/*
 *.dcf
 *.rds
-
+*.pdf
+*.docx
+*.Rapp.history
 
 ! data/README.txt
 ! session1/session_1slides.html

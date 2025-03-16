@@ -1,0 +1,343 @@
+---
+title: "Florida Arrest Data"
+output: 
+    flexdashboard::flex_dashboard:
+            orientation: rows
+            self_contained: TRUE
+            vertical_layout: scroll
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(here)
+library(readr)
+library(ggplot2)
+library(DT)
+library(plotly)
+library(leaflet)
+library(shiny)
+
+knitr::opts_chunk$set(echo = FALSE)
+
+flordia_arrests1 = read_csv(here("data","FloridaConvictions","FloridaConvictions_00000.csv"))
+arrest_data = flordia_arrests1 %>%
+    mutate(ARREST_YEAR = as.character(ARREST_YEAR))
+
+fl_counties_geo = tigris::counties(state = "12", year = "2024")
+
+fl_county_pop = read.csv("https://www2.census.gov/programs-surveys/popest/datasets/2020-2023/counties/asrh/cc-est2023-agesex-12.csv")
+
+fl_county_pop_sub = fl_county_pop %>%
+    filter(YEAR == 1) %>%
+    select(CTYNAME, POPESTIMATE)
+    
+fl_counties_geo = fl_counties_geo %>% left_join(fl_county_pop_sub, by = c("NAMELSAD"= "CTYNAME"))
+
+createTabData = function(arrest_data, selected_grouping, selected_outcome, daterange,
+                         remove_missing = FALSE, add_percent_column = FALSE,
+                         use_suppression = TRUE){
+
+    if(selected_grouping != "no_grouping"){
+        
+        out = arrest_data %>% 
+            filter(ARREST_DATE >= daterange[1] & ARREST_DATE <= daterange[2]) %>%
+            group_by( .data[[selected_outcome]], .data[[selected_grouping]] ) %>%
+            summarize(count = n())
+    }else{
+        
+        out = arrest_data %>% 
+            filter(ARREST_DATE >= daterange[1] & ARREST_DATE <= daterange[2]) %>%
+            group_by( .data[[selected_outcome]] ) %>%
+            summarize(count = n()) %>%
+            arrange(desc(count))
+    }
+    
+    if(remove_missing){
+        out = out %>% filter(! is.na(.data[[selected_outcome]]))
+    }
+    
+    if(add_percent_column){
+        
+        if(selected_grouping != "no_grouping"){
+            
+            out = out %>%
+                group_by(.data[[selected_grouping]]) %>%
+                mutate(percent = 100*round(count/sum(count),4))
+            
+        }else{
+            out = out %>%
+                mutate(percent = 100*round(count/sum(count),4))
+        }
+    }
+
+    #suppression criteria
+    if(use_suppression){
+        out = out %>% filter(count >= 10)
+    }
+
+    return(out)
+}
+```
+# Data Analysis
+
+Inputs {data-height=200}
+-------------------------------------
+
+###
+
+```{r}
+outcome_variables = c(
+    "Prosecution Offense" = "PROS_OFFENSE", 
+    "Prosecution Grouping" = "PROS_GROUPING",
+    "Prosecution Degree" = "PROS_DEGREE"
+)
+
+grouping_variables = c("No grouping" = "no_grouping",
+            "Sex" = "SEX",
+            "Race" =  "RACE",
+            "Arrest Year" = "ARREST_YEAR"
+)
+
+map_outcomes = c("Total Prosecutions" = "total",
+                 "1st Degree Prosecutions" = "1st Degree",
+                 "2nd Degree Prosecutions" = "2nd Degree",
+                 "3rd Degree Prosecutions" = "3rd Degree",
+                 "Capital Prosecutions" = "Capital",
+                 "Life Prosecutions" = "Life")
+
+ dateRangeInput(
+      "daterange",
+      "Select a Date Range Input for the Arrest Date",
+      start = "2014-01-01", #initial value
+      end = "2018-12-31", #initial value
+      min = "2014-01-01", #minimum allowed date
+      max = "2018-12-31", #maximum allowed date
+      format = "yyyy-mm-dd"
+  )
+  
+``` 
+
+###
+
+```{r}
+ 
+  selectInput(
+      inputId = "selected_outcome",
+      label = "Choose a Variable to Analyze",
+      choices = outcome_variables,
+      selected = outcome_variables[3],
+      multiple = FALSE
+  )
+```
+
+###
+
+```{r}
+  selectInput(
+      inputId = "selected_grouping",
+      label = "(Optional) Choose a variable to group the anlaysis by",
+      choices = grouping_variables,
+      selected = "no_grouping",
+      multiple = FALSE
+  )
+```
+
+###
+
+```{r}
+  checkboxInput(
+      inputId = "add_percent_column",
+      label ="Show Percent (within group)",
+      value = FALSE 
+  )
+```
+
+###
+
+```{r}
+
+  checkboxInput(
+      inputId = "remove_missing",
+      label ="Remove Missing Values from Calculations",
+      value = FALSE 
+  )
+
+```
+
+###
+
+```{r}
+
+  actionButton( 
+      inputId = "update_button", 
+      label = "Update the Plot and Table"
+  )
+```
+
+Table {data-height=300}
+-------------------------------------
+
+```{r, degree_by_sex}
+
+tab_data = reactive({
+    
+    out = createTabData(arrest_data = arrest_data, selected_grouping = input$selected_grouping,
+                  selected_outcome = input$selected_outcome,
+                  daterange = input$daterange,
+                  remove_missing = input$remove_missing,
+                  add_percent_column = input$add_percent_column,
+                  use_suppression = TRUE) 
+    
+    return(out)
+})
+
+
+plot_title = reactive({
+    
+    input$update_button
+    
+    isolate({
+    
+        if(input$selected_grouping != "no_grouping"){
+            group_text = paste0(" by ", names(grouping_variables)[grouping_variables == input$selected_grouping] )
+        }else{
+            group_text = ""
+        }
+        
+        percent_count_text = ifelse(input$add_percent_column, " Percentages", " Counts")
+        
+        out = paste0(names(outcome_variables)[outcome_variables == input$selected_outcome], percent_count_text, group_text)
+        
+    })
+    
+    return(out)
+})
+
+
+renderDT({
+    
+    input$update_button
+    
+    isolate({
+        
+        tab_data_names = c(
+            names(outcome_variables)[outcome_variables == input$selected_outcome],
+            if(input$selected_grouping != "no_grouping"){ 
+                names(grouping_variables)[grouping_variables == input$selected_grouping]
+            },
+            "Count",
+            if(input$add_percent_column){"Percent"}
+        )
+        
+        table_data = tab_data() %>%
+            datatable(rownames = FALSE,
+                      caption = plot_title(),
+                      colnames = tab_data_names,
+                      extensions = c('Buttons'),
+                      options = list(
+                          pageLength = 5,
+                          scrollX = FALSE,
+                          scrollY = '500px',
+                          paging = TRUE,
+                          dom = 'Bfrtip',
+                          buttons = c('colvis','csv', 'excel', 'pdf', 'print')
+                      )
+            )
+        
+        if(sum(tab_data()$count >1000)){
+            out = table_data
+        }else{
+            out = NULL
+        }
+        
+        return(out)
+    })
+})
+
+```
+
+Plot and Commentary {data-height=400}
+-------------------------------------
+
+### Plot
+
+```{r}
+renderPlotly({
+    
+    input$update_button
+    
+    isolate({
+    
+        if(input$add_percent_column){
+            yvar = "percent"
+        }else{
+            yvar = "count"
+        }
+        
+        mydata = tab_data()
+        
+        if(input$selected_grouping != "no_grouping"){
+            p = plot_ly(mydata, 
+                         x = mydata[[input$selected_outcome]], y = mydata[[yvar]],
+                         split = mydata[[input$selected_grouping]], type = "bar")
+        }else{    
+            p = plot_ly(mydata, 
+                        x = mydata[[input$selected_outcome]], y = mydata[[yvar]], type = "bar") 
+        }
+        
+        p = p %>% 
+            layout(title = plot_title(),
+                   xaxis = list(title = names(outcome_variables)[outcome_variables == input$selected_outcome]),
+                   yaxis = list(title = yvar)
+            ) 
+        
+        if(sum(tab_data()$count >1000)){
+            out = p
+        }else{
+            out = NULL
+        }
+            
+        return(out)
+        
+    })
+})
+```
+
+# Map
+
+##
+
+### Map of 3rd Degree Prosecutions by County
+
+```{r}
+all_outcomes = arrest_data %>% 
+    group_by(COUNTY) %>%
+    summarize(count_var = sum(PROS_DEGREE %in% c("3rd Degree"),na.rm = TRUE))
+        
+map_data  = fl_counties_geo %>%
+     left_join(all_outcomes, by = c(NAMELSAD = "COUNTY")) %>%
+     mutate("count_var_rate_per_10k"= count_var / (POPESTIMATE/10000))
+
+colors_for_palette = c("#EBF6FF","#6BAED6", "#08306B")
+cont_pal = colorNumeric(colors_for_palette, domain = map_data$count_var_rate_per_10k, na.color = "#f1f1e0")
+
+map_continous_scale = leaflet() %>%
+    addProviderTiles(providers$Esri.WorldGrayCanvas) %>% #this is a more plain tile layer
+    addPolygons(data =  map_data,
+                color = "black", #controls the color of the shape boundaries
+                weight = 2, #conrtrols the thickness of the shape boundaries
+                fillOpacity = 1, #controls the opacity of the fill color
+                fillColor = cont_pal(map_data$count_var_rate_per_10k),
+                label = ~NAMELSAD) %>% #label gives the tooltip/hover label
+    addLegend("bottomright",
+                pal = cont_pal,
+                title = "3rd Degree Arrests<br>per 10k persons",
+                values = map_data$count_var_rate_per_10k,
+                na.label = paste("No Estimate Available"),
+                opacity = 1)  
+
+map_continous_scale
+
+```
+

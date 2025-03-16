@@ -1,0 +1,35 @@
+---
+title: "My Analysis"
+author: "JIRN"
+date: "`r Sys.Date()`"
+output: 
+    flexdashboard::flex_dashboard:
+            storyboard: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+### Knitting
+
+```{r cars}
+summary(cars)
+```
+
+---
+
+### Including Plots
+
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+---
+
+This plot show that pressure increases as the temperature increases.
